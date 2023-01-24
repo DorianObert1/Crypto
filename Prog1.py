@@ -5,32 +5,36 @@ def prix_du_BTC():
     exchange = ccxt.binance()
     symbol = 'BTC/EUR'
 
-    montant_en_eur = 1000
-    argent_disponible = 0
-    prix_precedent = 0
+    solde = 1000
+    argent_place = 0
     gain_total = 0
-    achat_en_cours = True
+    prix_precedent = 0
+    achat_en_cours = False
     run = True
     while run:
         print()
         try:
+            gain = 0
             ticker = exchange.fetch_ticker(symbol)
             dernier_prix = ticker['last']
-            if dernier_prix > prix_precedent:
+            if dernier_prix >= prix_precedent:
                 if not achat_en_cours:
-                    if argent_disponible >= montant_en_eur:
-                        achat_en_cours = True
-                        argent_disponible -= montant_en_eur
-                        print("Achat effectué, prix :", dernier_prix, "€, argent disponible :", argent_disponible, "€")
+                    argent_place = solde
+                    achat_en_cours = True
+                    print("Achat effectué, prix :", dernier_prix, "€, argent placé :", round(argent_place,2), "€")
+                elif achat_en_cours:
+                    argent_place = argent_place * dernier_prix / prix_precedent
+                    print('Argent placé :', round(argent_place,2), '€')
             elif dernier_prix < prix_precedent:
                 if achat_en_cours:
-                    gain = montant_en_eur * (dernier_prix / prix_precedent)
+                    gain = argent_place - solde
                     achat_en_cours = False
-                    gain_total += gain
-                    montant_en_eur += gain
-                    print("Vente effectuée, prix :", dernier_prix, "€, gains réalisés :", gain_total, "€")
+                    solde = argent_place
+                    argent_place = 0
+                    print("Vente effectuée, prix :", dernier_prix, "€, argent placé :", round(argent_place,2), "€ gain :", round(gain,2), "€")
             prix_precedent = dernier_prix
-            print('Gain total :', gain_total, '€')
+            gain_total += gain
+            print("Gain total :", round(gain_total,2), "€")
             print('Le prix de BTC est de :', ticker['last'])
 
         except ccxt.RequestTimeout as e:
