@@ -10,8 +10,8 @@ def prix_du_BTC():
     gain_total = 0
     prix_precedent = 0
     achat_en_cours = False
-    run = True
-    while run:
+    compt = 200
+    while compt >= 0:
         print()
         try:
             gain = 0
@@ -31,7 +31,7 @@ def prix_du_BTC():
                     achat_en_cours = False
                     solde = argent_place
                     argent_place = 0
-                    print("Vente effectuée, prix :", dernier_prix, "€, argent placé :", round(argent_place,2), "€ gain :", round(gain,2), "€")
+                    print("Vente effectuée, prix :", dernier_prix, "€, gain :", round(gain,2), "€")
             prix_precedent = dernier_prix
             gain_total += gain
             print("Gain total :", round(gain_total,2), "€")
@@ -41,4 +41,18 @@ def prix_du_BTC():
             print("RequestTimeout caught, retrying...")
         except ccxt.DDoSProtection as e:
             print("DDoSProtection caught, retrying...")
+
+        compt -= 1
         time.sleep(1)
+
+    print('------------------------------------')
+    if achat_en_cours:
+        gain = argent_place - solde
+        solde = argent_place
+        argent_place = 0
+        print("Dernière Vente effectuée, prix :", dernier_prix, "€, argent placé :", round(argent_place, 2), "€ gain :",round(gain, 2), "€")
+
+    print("Gain total :", round(gain_total, 2), "€")
+    print("Solde :", round(solde, 2), "€")
+    print("Argent placé :", round(argent_place, 2), "€")
+    print("-------- Terminé --------")
